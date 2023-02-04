@@ -1,7 +1,13 @@
-#To load a package;
+# General Notes for R
+
+To load a package:
+```
 library(tidyverse)
 library(gapminder)
+```
 
-#To import data;
+To import data:
+```
 filename <- file.choose()
 census <- readRDS(filename)
+```
