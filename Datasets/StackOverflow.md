@@ -1,6 +1,11 @@
 # Stack Overflow
 
-*images*
+### Graphs:
+
+
+### Links to Rpubs:
+https://rpubs.com/adamcurry/SO  
+https://rpubs.com/adamcurry/SO2
 
 ### Code:
 
