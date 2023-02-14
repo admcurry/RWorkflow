@@ -33,3 +33,29 @@ quantile(data, 0.75) - quantile(data, 0.25)
 
 ### Outliers
 
+
+## Probability 
+
+### Setting a Seed
+```
+set.set(50)
+```
+
+### Sampling
+```
+dataset %>%
+	sample_n(5, replace = TRUE)
+```
+
+### Summarising Probability
+```
+size_distribution <- restaurant_groups %>%
+  count(group_size) %>%
+  mutate(probability = n / sum(n))
+  
+ size_distribution %>%
+   filter(group_size >= 4) %>%
+   summarise(prob_4_or_more = sum(probability))
+ ```
+ 
+ 
