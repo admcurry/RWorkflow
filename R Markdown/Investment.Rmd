@@ -1,0 +1,30 @@
+---
+title: "Investment Report"
+author: "Adam"
+date: "`r format(Sys.time(), '%d %B, %y')`"
+output: html_document
+---
+
+```{r data, include = FALSE}
+library(readr)
+
+investment_annual_summary <- read_csv('investment_annual_summary.csv')
+investment_services_projects <- read_csv('investment_services_projects.csv')
+```
+
+
+## Datasets 
+
+### Investment Annual Summary
+
+The `investment_annual_summary` dataset provides a summary of the dollars in millions provided to each region for each fiscal year, from 2012 to 2018.
+```{r}
+investment_annual_summary
+```
+
+### Investment Services Projects
+
+The `investment_services_projects` dataset provides information about each investment project from the 2012 to 2018 fiscal years. Information listed includes the project name, company name, sector, project status, and investment amounts.
+```{r}
+investment_services_projects 
+```
