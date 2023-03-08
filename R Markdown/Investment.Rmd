@@ -7,6 +7,8 @@ output:
     toc: true
     toc_float:
       collapsed: false
+params:
+  country: Brazil
 ---
 
 ```{r setup, include = FALSE}
@@ -39,10 +41,9 @@ The `investment_annual_summary` dataset provides a summary of the dollars in mil
 ```{r investment-annual-summary}
 ggplot(investment_annual_summary, aes(fiscal_year, dollars_in_millions, color=region)) +
   geom_line() +
-  labs(
-    title = "Investment Annual Summary",
-    x = "Fiscal Year",
-    y = "Dollars in Millions") +
+  labs(title = "Investment Annual Summary",
+       x = "Fiscal Year",
+       y = "Dollars in Millions") +
   theme(legend.key.size = unit(0.5, 'cm'),legend.position = 'bottom')
 ```
 
@@ -50,34 +51,40 @@ ggplot(investment_annual_summary, aes(fiscal_year, dollars_in_millions, color=re
 kable(investment_region_summary, col.names = c('Region', 'Dollars in Millions'), align = 'cc', caption = 'Table 1.1 The The total investment summary for each region for the 2012 to 2018 fiscal years.')
 ```
 
-### Investment Projects in Brazil
+### Investment Projects in `r params$country`
 
 The `investment_services_projects` dataset provides information about each investment project from 2012 to 2018. Information listed includes the project name, company name, sector, project status, and investment amounts.
 
-```{r brazil-investment-projects, warning = FALSE}
-brazil_investment_projects <- investment_services_projects %>%
-  filter(country == 'Brazil')
+```{r country-investment-projects, warning = FALSE}
+country_investment_projects <- investment_services_projects %>%
+  filter(country == params$country)
 
-ggplot(brazil_investment_projects, aes(date_disclosed, total_investment, color=status)) +
+ggplot(country_investment_projects, aes(date_disclosed, total_investment, color=status)) +
   geom_point() +
-  labs(
-    title = "Investment Services Projects",
-    x = "Date Disclosed",
-    y = "Total IFC Investment in Dollars in Millions") +
+  labs(title = "Investment Services Projects",
+       x = "Date Disclosed",
+       y = "Total IFC Investment in Dollars in Millions") +
   theme(legend.key.size = unit(0.5, 'cm'),legend.position = 'bottom')
 ```
 
 
-### Investment Projects in Brazil in 2018
+### Investment Projects in `r params$country` in 2018
 
-```{r brazil-investment-projects-2018, warning = FALSE}
-brazil_investment_projects_2018 <- investment_services_projects %>%
-  filter(country == "Brazil",
+```{r country-investment-projects-2018, warning = FALSE}
+country_investment_projects_2018 <- investment_services_projects %>%
+  filter(country == params$country,
          date_disclosed >= "2017-07-01",
          date_disclosed <= "2018-06-30") 
 
-brazil_investment_projects_2018_total <- brazil_investment_projects_2018 %>%
+country_investment_projects_2018_total <- country_investment_projects_2018 %>%
   summarize(sum_total_investment = sum(total_investment, na.rm = TRUE)) 
+
+ggplot(country_investment_projects_2018, aes(date_disclosed, total_investment, color=status)) +
+  geom_col(size=3.5, alpha=0.5) + 
+  labs(title = "Investment Services Projects",
+       x = "Date Disclosed",
+       y = "Total IFC Investment in Dollars in Millions") +
+  theme(legend.key.size = unit(0.5, 'cm'),legend.position = 'bottom')
 ```
 
-The total investment amount for all projects in Brazil in the 2018 fiscal year was `r brazil_investment_projects_2018_total` million dollars.
+The total investment amount for all projects in `r params$country` in the 2018 fiscal year was `r country_investment_projects_2018_total` million dollars.
