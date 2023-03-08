@@ -4,6 +4,7 @@ author: "Adam"
 date: "`r format(Sys.time(), '%d %B, %y')`"
 output: 
   html_document:
+    css: styles.css
     toc: true
     toc_float:
       collapsed: false
