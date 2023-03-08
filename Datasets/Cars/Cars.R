@@ -3,7 +3,6 @@ library(ggpubr)
 
 cars <- read.csv('mtcars.csv')
 
-dev.new(width=11,height=6,noRStudioGD = TRUE)
 ggplot(cars, aes(wt, mpg, color = fcyl)) +
   geom_point(color='red',
              position = 'jitter',
@@ -14,13 +13,19 @@ ggplot(cars, aes(wt, mpg, color = fcyl)) +
 
 a <- ggplot(cars, aes(wt, hp)) +
   geom_point() +
-  geom_smooth(method = 'lm', se = TRUE)
+  geom_smooth(method = 'lm', se = TRUE) +
+  labs(title = 'Car Horsepower vs Weight',
+       x = 'Weight of Car',
+       y = 'Horsepower') +
+  theme_classic()
 
 b <- ggplot(cars, aes(mpg, hp)) +
   geom_point() +
-  geom_smooth(method = 'lm', se = TRUE)
+  geom_smooth(method = 'lm', se = TRUE) +
+  labs(title = 'Car Horsepower vs mpg',
+       y = 'Horsepower') +
+  theme_classic()
 
-dev.new(width=11,height=6,noRStudioGD = TRUE)
 ggarrange(a, b,
-          labels = c("A", "B"),
+          labels = c("i", "ii"),
           ncol = 2, nrow = 1)
