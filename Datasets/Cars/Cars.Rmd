@@ -1,0 +1,72 @@
+---
+title: "Car Horsepower Analysis"
+author: "Adam"
+date: "`r format(Sys.time(), '%d %B, %y')`"
+output: html_document
+---
+
+---
+
+In this analysis, I plotted the horsepower vs the weight of the car on my first plot. I then added a correlation line with error. I then did the same in the second plot but horsepower against mpg.  
+I then used `ggarange` to combine these into one plot, shown below.
+
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(fig.align = 'center', out.width='80%', echo = TRUE)
+```
+
+```{r imports, include = FALSE}
+library(tidyverse)
+library(ggpubr)
+
+cars <- read.csv('mtcars.csv')
+```
+
+## Horsepower against weight & mpg
+
+### Plot
+```{r plot1, echo = FALSE, warning = FALSE, message = FALSE}
+a <- ggplot(cars, aes(wt, hp)) +
+  geom_point() +
+  geom_smooth(method = 'lm', se = TRUE) +
+  labs(title = 'Car Horsepower vs Weight',
+       x = 'Weight of Car',
+       y = 'Horsepower') +
+  theme_classic()
+
+b <- ggplot(cars, aes(mpg, hp)) +
+  geom_point() +
+  geom_smooth(method = 'lm', se = TRUE) +
+  labs(title = 'Car Horsepower vs mpg',
+       y = 'Horsepower') +
+  theme_classic()
+
+ggarrange(a, b,
+          labels = c("i", "ii"),
+          ncol = 2, nrow = 1)
+```
+
+### Code
+```{r plot1code, eval = FALSE}
+a <- ggplot(cars, aes(wt, hp)) +
+  geom_point() +
+  geom_smooth(method = 'lm', se = TRUE) +
+  labs(title = 'Car Horsepower vs Weight',
+       x = 'Weight of Car',
+       y = 'Horsepower') +
+  theme_classic()
+
+b <- ggplot(cars, aes(mpg, hp)) +
+  geom_point() +
+  geom_smooth(method = 'lm', se = TRUE) +
+  labs(title = 'Car Horsepower vs mpg',
+       y = 'Horsepower') +
+  theme_classic()
+
+ggarrange(a, b,
+          labels = c("i", "ii"),
+          ncol = 2, nrow = 1)
+```
+
+
