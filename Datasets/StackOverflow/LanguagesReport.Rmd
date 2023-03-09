@@ -1,0 +1,317 @@
+---
+title: "Language Popularity Analysis"
+author: "Adam"
+date: "`r format(Sys.time(), '%d %B, %y')`"
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+---
+
+This R Markdown file is for my analyses of Stack Overflow data. I used this data to find the most popular programming languages, and the popularity of R tags over time.
+
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(fig.align = 'center', out.width='80%', echo = TRUE)
+```
+
+```{r imports, include = FALSE}
+library(tidyverse)
+library(readr)
+library(RColorBrewer)
+library(knitr)
+library(lubridate)
+
+by_tag_year <- read_csv('by_tag_year.csv', show_col_types = FALSE)
+
+questions <- readRDS('questions.rds')
+tags <- readRDS('tags.rds')
+question_tags <- readRDS('question_tags.rds')
+answers <- readRDS('answers.rds')
+```
+
+## Popularity of Programming Languages
+
+This analysis showed me that the R language has steadily been becoming more popular since 2008, and now is even more popular than c++. c# has fallen from by far the most popular language in 2008 to the sixth most popular language in 2018. Python has rapidly grew in this period of time to rival JavaScript for the most popular language by Stack Overflow tags.
+
+### Popularity of Programming Languages in 2018
+
+I maniplulated the data to firstly calculate the proportion of tags, rather than the total number as I felt this was more meaningful. Next, I found the 9 most popular tags, and then added 'R' as a tenth tag.  I then filtered for the year 2018, and plotted this as a bar chart, ordering it by the most to least popular. 
+```{r data1, include = FALSE}
+#Finding Data as a Fraction
+by_tag_year_fraction <- by_tag_year %>%
+  mutate(fraction = number / year_total)
+
+#Finding Most Popular Tags & R
+sorted_tags <- by_tag_year %>%
+  group_by(tag) %>%
+  summarize(tag_total = sum(number)) %>%
+  arrange(desc(tag_total))
+
+highest_tags <- c(head(sorted_tags$tag, 9), 'r')
+
+by_tag_subset <- by_tag_year_fraction %>%
+  filter(tag %in% highest_tags)
+
+#Data for 2018
+year2018 <- by_tag_subset %>%
+  filter(year == 2018) %>%
+  select(tag, fraction) %>%
+  arrange(fraction)
+```
+
+```{r plot1, echo = FALSE}
+ggplot(year2018, aes(fct_reorder(tag, fraction, .desc = TRUE), fraction, fill = 'Navy')) +
+  geom_col() +
+  theme_classic() +
+  theme(legend.position="none") +
+  labs(title = 'Popularity of Programming Language in 2018',
+       x ='',
+       y = 'Proportion')
+```
+
+### Popularity of Programming Langauges Over Time
+
+For the second chart, I plotted a line chart of the most popular tags over a period of time, to show which languages are becoming more and less popular.
+```{r plot2, echo = FALSE, message = FALSE, warning = FALSE}
+ggplot(by_tag_subset, aes(year, fraction, color=tag)) +
+  geom_line(size = 0.8) +
+  theme_classic() +
+  labs(title = 'Popularity of Programming Languages',
+       x = 'Year',
+       y = 'Proportion') +
+  theme(legend.key.size = unit(0.5, 'cm'),legend.position = 'bottom') +
+  scale_color_brewer(palette="Paired")
+```
+
+### Code
+
+#### *Code for data manipulation:*
+```{r datacode, eval = FALSE}
+#Finding Data as a Fraction
+by_tag_year_fraction <- by_tag_year %>%
+  mutate(fraction = number / year_total)
+
+#Finding Most Popular Tags & R
+sorted_tags <- by_tag_year %>%
+  group_by(tag) %>%
+  summarize(tag_total = sum(number)) %>%
+  arrange(desc(tag_total))
+
+highest_tags <- c(head(sorted_tags$tag, 9), 'r')
+
+by_tag_subset <- by_tag_year_fraction %>%
+  filter(tag %in% highest_tags)
+
+#Data for 2018
+year2018 <- by_tag_subset %>%
+  filter(year == 2018) %>%
+  select(tag, fraction) %>%
+  arrange(fraction)
+```
+
+#### *Code for plot 1:*
+```{r plot1code, eval = FALSE}
+ggplot(year2018, aes(fct_reorder(tag, fraction, .desc = TRUE), fraction, fill = 'Navy')) +
+  geom_col() +
+  theme_classic() +
+  theme(legend.position="none") +
+  labs(title = 'Popularity of Programming Language in 2018',
+       x ='',
+       y = 'Proportion')
+```
+
+#### *Code for plot 2:
+```{r plot2code, eval = FALSE}
+ggplot(by_tag_subset, aes(year, fraction, color=tag)) +
+  geom_line(size = 0.8) +
+  theme_classic() +
+  labs(title = 'Popularity of Programming Languages',
+       x = 'Year',
+       y = 'Proportion') +
+  theme(legend.key.size = unit(0.5, 'cm'),legend.position = 'bottom') +
+  scale_color_brewer(palette="Paired")
+```
+
+## Popularity of R Related Tags
+
+This was a seperate project, but related to I added it to this report. I found that 'ggplot2' and 'dplyr' are the most popular tags, which increased however recently started to sharply decrease, which is similar with the rest of the tags. Note, I did not include the 'R' tag in the first analysis. 
+
+### Popularity of R Tags
+
+In this analysis the bulk of the code is using dplyr to sort and filter data, and also join tables together. This allowed me to get the data I needed, and I then plotted a faceted graph of the 9 most popular R related tags. The data for this analysis is different than the other 3, as rather than just the number of times each tag is mentioned. I specifically found the number of times it is mentioned in questions and answers, and plotted each separately. Interestingly, with most tags, they have been used more in answers than questions.
+
+```{r data2, include = FALSE, message = FALSE}
+#Joining tables
+question_data <- questions %>%
+  left_join(question_tags, by = c("id" = "question_id")) %>%
+  left_join(tags, by = c("tag_id" = "id")) %>%
+  replace_na(list(tag_name='only-r'))
+
+#Grouping Data and Arranging
+question_data %>% 
+  group_by(tag_name) %>%
+  summarize(score = mean(score),
+            num_questions = n()) %>%
+  arrange(desc(num_questions))
+
+#Data manipulation
+answer_counts <- answers %>%
+  count(question_id) %>%
+  arrange(desc(n))
+
+question_answer_counts <- questions %>%
+  left_join(answer_counts, by = c('id' = 'question_id')) %>%
+  replace_na(list(n=0))
+
+tagged_answers <- question_answer_counts %>%
+  inner_join(question_tags, by = c('id' = 'question_id')) %>%
+  inner_join(tags, by = c('tag_id' = 'id'))
+
+
+tagged_answers %>%
+  # Aggregate by tag_name
+  group_by(tag_name)  %>%
+  # Summarize questions and average_answers
+  summarize(questions = n(),
+            average_answers = mean(n)) %>%
+  # Sort the questions in descending order
+  arrange(desc(questions))  
+
+
+# Inner join the question_tags and tags tables with the questions table
+questions_with_tags <- questions %>%
+  inner_join(question_tags, by = c('id' = 'question_id')) %>%
+  inner_join(tags, by = c('tag_id' = 'id'))
+
+# Inner join the question_tags and tags tables with the answers table
+answers_with_tags <- answers %>%
+  inner_join(question_tags, by = c('question_id' = 'question_id')) %>%
+  inner_join(tags, by = c('tag_id' = 'id'))
+
+
+posts_with_tags <- bind_rows(questions_with_tags %>% mutate(type = "question"),
+                             answers_with_tags %>% mutate(type = "answer"))
+
+by_year <- posts_with_tags %>%
+  mutate(year = year(creation_date)) %>%
+  count(type, year, tag_name)
+
+by_year_filtered_extend <- by_year %>%
+  filter(tag_name %in% c('dplyr', 'ggplot2', 'dataframe', 'shiny', 'data.table',
+                         'plot', 'regex', 'matrix', 'for-loop'))
+```
+
+```{r plot3, echo = FALSE}
+ggplot(by_year_filtered_extend, aes(year,  n, color = type)) +
+  geom_line() +
+  facet_wrap(~ tag_name) +
+  ggtitle('Popularity of Stack Overflow Tags Over Time') +
+  labs(x='Year', y='Number of Posts with tag')
+```
+
+
+
+### Popularity of 'R', 'dplyr' and 'ggplot2' Over Time
+
+In this analysis, I plotted 3 R related tags, and the proportion of times they are mentioned in Stack Overflow.
+```{r plot4, echo = FALSE}
+r_tags_over_time <- by_tag_year_fraction %>%
+  filter(tag %in% c('r', 'dplyr', 'ggplot2'))
+
+ggplot(r_tags_over_time, aes(year, fraction, color = tag)) +
+  geom_line(size = 0.8) +
+  labs(title = 'Popularity of R Related Tags',
+       x = 'Year',
+       y = 'Proportion') +
+  theme(legend.key.size = unit(0.8, 'cm'),legend.position = 'bottom')
+```
+
+### Code
+
+#### *Code for data manipulation:*
+```{r data2code, eval = FALSE}
+#Joining tables
+question_data <- questions %>%
+  left_join(question_tags, by = c("id" = "question_id")) %>%
+  left_join(tags, by = c("tag_id" = "id")) %>%
+  replace_na(list(tag_name='only-r'))
+
+#Grouping Data and Arranging
+question_data %>% 
+  group_by(tag_name) %>%
+  summarize(score = mean(score),
+            num_questions = n()) %>%
+  arrange(desc(num_questions))
+
+#Data manipulation
+answer_counts <- answers %>%
+  count(question_id) %>%
+  arrange(desc(n))
+
+question_answer_counts <- questions %>%
+  left_join(answer_counts, by = c('id' = 'question_id')) %>%
+  replace_na(list(n=0))
+
+tagged_answers <- question_answer_counts %>%
+  inner_join(question_tags, by = c('id' = 'question_id')) %>%
+  inner_join(tags, by = c('tag_id' = 'id'))
+
+
+tagged_answers %>%
+  # Aggregate by tag_name
+  group_by(tag_name)  %>%
+  # Summarize questions and average_answers
+  summarize(questions = n(),
+            average_answers = mean(n)) %>%
+  # Sort the questions in descending order
+  arrange(desc(questions))  
+
+
+# Inner join the question_tags and tags tables with the questions table
+questions_with_tags <- questions %>%
+  inner_join(question_tags, by = c('id' = 'question_id')) %>%
+  inner_join(tags, by = c('tag_id' = 'id'))
+
+# Inner join the question_tags and tags tables with the answers table
+answers_with_tags <- answers %>%
+  inner_join(question_tags, by = c('question_id' = 'question_id')) %>%
+  inner_join(tags, by = c('tag_id' = 'id'))
+
+
+posts_with_tags <- bind_rows(questions_with_tags %>% mutate(type = "question"),
+                             answers_with_tags %>% mutate(type = "answer"))
+
+by_year <- posts_with_tags %>%
+  mutate(year = year(creation_date)) %>%
+  count(type, year, tag_name)
+
+by_year_filtered_extend <- by_year %>%
+  filter(tag_name %in% c('dplyr', 'ggplot2', 'dataframe', 'shiny', 'data.table',
+                         'plot', 'regex', 'matrix', 'for-loop'))
+```
+
+#### *Code for plot 1:*
+```{r}
+```{r plot3code, eval = FALSE}
+ggplot(by_year_filtered_extend, aes(year,  n, color = type)) +
+  geom_line() +
+  facet_wrap(~ tag_name) +
+  ggtitle('Popularity of Stack Overflow Tags Over Time') +
+  labs(x='Year', y='Number of Posts with tag')
+```
+
+#### *Code for plot 2:*
+```{r plot4code, eval = FALSE}
+r_tags_over_time <- by_tag_year_fraction %>%
+  filter(tag %in% c('r', 'dplyr', 'ggplot2'))
+
+ggplot(r_tags_over_time, aes(year, fraction, color = tag)) +
+  geom_line(size = 0.8) +
+  labs(title = 'Popularity of R Related Tags',
+       x = 'Year',
+       y = 'Proportion') +
+  theme(legend.key.size = unit(0.8, 'cm'),legend.position = 'bottom')
+```
+
