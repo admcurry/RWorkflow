@@ -12,3 +12,5 @@ ggplot(fish.tidy, aes(Year, Capture, fill = Species)) +
        y = 'Number Captured') +
   theme_classic() +
   theme(legend.key.size = unit(0.5, 'cm'),legend.position = 'bottom')
+
+ggsave('fish.png', width = 3000, height = 2000, units = 'px')
