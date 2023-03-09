@@ -8,3 +8,5 @@ ggplot(diamonds, aes(carat, price, color = clarity)) +
        x = 'Carat',
        y= 'Price in $',
        color='Clarity')
+
+ggsave('diamonds.png', width = 3000, height = 2000, units = 'px')
