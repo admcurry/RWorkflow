@@ -1,0 +1,61 @@
+---
+title: "Salmon Species Caught Analysis"
+author: "Adam"
+date: "`r format(Sys.time(), '%d %B, %y')`"
+output: html_document
+---
+
+---
+
+This analysis is of the number of salmon caught over time. Whilst both of these plot's code are relatively simple, with the initial plot it is a simple line plot of capture against the year, coloured by the species. In the final plot, I opted for an area chart rather than a line chart, and also changed the theme, and the position of the legend.
+
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(fig.align = 'center', out.width='80%', echo = TRUE)
+```
+
+```{r imports, include = FALSE}
+library(tidyverse)
+
+load(file = 'fish.RData')
+```
+
+## Final Plot
+```{r finalplot, echo = FALSE}
+ggplot(fish.tidy, aes(Year, Capture, fill = Species)) +
+  geom_area(aes(group = Species), alpha=0.85) +
+  labs(title = 'Amount of Species of Salmon Captured Over Time',
+       y = 'Number Captured') +
+  theme_classic() +
+  theme(legend.key.size = unit(0.5, 'cm'),legend.position = 'bottom')
+```
+
+---
+
+## Initial Plot
+```{r initialplot, echo = FALSE}
+ggplot(fish.tidy, aes(Year, Capture, color = Species)) +
+  geom_line(aes(group = Species))
+```
+
+---
+
+## Code
+
+### *Code for the final plot:*
+```{r finalplotcode, eval = FALSE}
+ggplot(fish.tidy, aes(Year, Capture, fill = Species)) +
+  geom_area(aes(group = Species), alpha=0.85) +
+  labs(title = 'Amount of Species of Salmon Captured Over Time',
+       y = 'Number Captured') +
+  theme_classic() +
+  theme(legend.key.size = unit(0.5, 'cm'),legend.position = 'bottom')
+```
+
+### *Code for the initial plot:*
+```{r initialplotcode, eval = FALSE}
+ggplot(fish.tidy, aes(Year, Capture, color = Species)) +
+  geom_line(aes(group = Species))
+```
+
