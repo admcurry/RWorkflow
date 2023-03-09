@@ -1,0 +1,151 @@
+---
+title: "Gapminder Analysis"
+author: "Adam"
+date: "`r format(Sys.time(), '%d %B, %y')`"
+output: 
+  html_document:
+    toc: true
+    toc_float:
+      collapsed: false
+---
+
+This R Markdown file is for my analyses of the 'gapminder' dataset.
+
+---
+
+## Life Expectancy Analysis
+
+In this analysis, I firstly used dplyr from the tidyverse to filter the data to obtain data from the year 2007, then selected the country and life expectancy columns, rearranged them in descending order, and finally filtering for the countries with the highest and lowest life expectancies.  
+Next, I used ggplot2 to create a scatter plot of the data. I then added bars to the points, and added the life expectancy number directly onto the point, to improve readability. I then added titles and a caption, and customised the theme for a cleaner look. I also adjusted the color scheme. Next, I added a line at the global mean life expectancy, then added text and an arrow to annotate this.  
+Overall, in comparison to the table I inserted below, I think the graph greatly improves readability of the data, emphasizing the huge gap between the most and least developed countries.
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(fig.align = 'center', out.width='80%', echo = TRUE)
+```
+
+
+```{r imports, include = FALSE}
+library(tidyverse)
+library(readr)
+library(RColorBrewer)
+library(knitr)
+
+gapminder <- read.delim("gapminder.tsv", sep="\t")
+```
+
+```{r data, include = FALSE}
+highest <- gapminder %>%
+  filter(year == 2007) %>%
+  select(country, lifeExp) %>%
+  arrange(desc(lifeExp)) %>%
+  filter(lifeExp > 80.6)
+
+lowest <- gapminder %>%
+  filter(year == 2007) %>%
+  select(country, lifeExp) %>%
+  arrange(desc(lifeExp)) %>%
+  filter(lifeExp < 46)
+
+countries <- highest %>%
+  bind_rows(lowest)
+
+global_mean <- gapminder %>%
+  filter(year == 2007) %>%
+  summarise(global_mean = mean(lifeExp))
+
+```
+
+### Life Expectancy Plot
+```{r plot, echo = FALSE, warning = FALSE}
+palette <- brewer.pal(5, "RdYlBu")[-(2:4)]                      
+
+ggplot(countries , aes(x = lifeExp, y = fct_reorder(country, lifeExp), color = lifeExp)) +
+  geom_point(size = 4) +
+  geom_segment(aes(xend = 30, yend = country), size = 2) +
+  geom_text(aes(label = round(lifeExp,1)), color = "white", size = 1.5) +
+  scale_x_continuous("", expand = c(0,0), limits = c(30,85), position = "top") +
+  scale_color_gradientn(colors = palette) +
+  labs(title='Highest and lowest life expectancies, 2007', caption = 'Source: gapminder') +
+  theme_classic()  +
+  theme(axis.line.y = element_blank(),
+        axis.ticks.y = element_blank(),
+        axis.text = element_text(color='black'),
+        axis.title = element_blank(),
+        legend.position = 'none') + 
+  geom_vline(xintercept = 67, color = "grey40", linetype = 3) +
+  annotate(
+    "text",
+    x = 67 + 4, y = 5.5,
+    label = "The\nglobal\naverage",
+    vjust = 1, size = 3, color = "grey40"
+  ) +
+  annotate(
+    "curve",
+    x = 67 + 4, y = 5.5,
+    xend = 67, yend = 7.5,
+    arrow = arrow(length = unit(0.2, "cm"), type = "closed"),
+    color = "grey40")
+```
+
+### Life Expectancy Table
+```{r table, echo = FALSE}
+kable(countries, col.names = c('Country', 'Life Expectancy'), align = 'cc')
+```
+
+### Code
+#### *Code for the data manipulation:*
+```{r datacode, eval = FALSE}
+highest <- gapminder %>%
+  filter(year == 2007) %>%
+  select(country, lifeExp) %>%
+  arrange(desc(lifeExp)) %>%
+  filter(lifeExp > 80.6)
+
+lowest <- gapminder %>%
+  filter(year == 2007) %>%
+  select(country, lifeExp) %>%
+  arrange(desc(lifeExp)) %>%
+  filter(lifeExp < 46)
+
+countries <- highest %>%
+  bind_rows(lowest)
+
+global_mean <- gapminder %>%
+  filter(year == 2007) %>%
+  summarise(global_mean = mean(lifeExp))
+```
+
+#### *Code for the plot:*
+```{r plotcode, eval = FALSE}
+ggplot(countries , aes(x = lifeExp, y = fct_reorder(country, lifeExp), color = lifeExp)) +
+  geom_point(size = 4) +
+  geom_segment(aes(xend = 30, yend = country), size = 2) +
+  geom_text(aes(label = round(lifeExp,1)), color = "white", size = 1.5) +
+  scale_x_continuous("", expand = c(0,0), limits = c(30,85), position = "top") +
+  scale_color_gradientn(colors = palette) +
+  labs(title='Highest and lowest life expectancies, 2007', caption = 'Source: gapminder') +
+  theme_classic()  +
+  theme(axis.line.y = element_blank(),
+        axis.ticks.y = element_blank(),
+        axis.text = element_text(color='black'),
+        axis.title = element_blank(),
+        legend.position = 'none') + 
+  geom_vline(xintercept = 67, color = "grey40", linetype = 3) +
+  annotate(
+    "text",
+    x = 67 + 4, y = 5.5,
+    label = "The\nglobal\naverage",
+    vjust = 1, size = 3, color = "grey40"
+  ) +
+  annotate(
+    "curve",
+    x = 67 + 4, y = 5.5,
+    xend = 67, yend = 7.5,
+    arrow = arrow(length = unit(0.2, "cm"), type = "closed"),
+    color = "grey40")
+```
+
+---
+
+## Future analysis...
+...
