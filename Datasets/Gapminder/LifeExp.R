@@ -53,4 +53,4 @@ ggplot(countries , aes(x = lifeExp, y = fct_reorder(country, lifeExp), color = l
     arrow = arrow(length = unit(0.2, "cm"), type = "closed"),
     color = "grey40"
   )
-
+ggsave('lifeexp.png', width = 3000, height = 1500, units = 'px')
