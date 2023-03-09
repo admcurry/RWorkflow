@@ -5,8 +5,9 @@ library(tidyverse)
 sets <- readRDS('sets.rds')
 themes <- readRDS('themes.rds')
 inventories <- readRDS('inventories.rds')
+inventory_parts <- readRDS('inventory_parts.rds')
 
-#Joining tables, sek=lecting columns
+#Joining tables, selecting columns
 inventory_parts_themes <- inventories %>%
   inner_join(inventory_parts, by = c("id" = "inventory_id")) %>%
   arrange(desc(quantity)) %>%
