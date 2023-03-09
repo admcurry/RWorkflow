@@ -74,7 +74,6 @@ by_year_filtered <- by_year %>%
   filter(tag_name %in% c('dplyr','ggplot2'))
 
 # Line plot faceted by the tag name 
-dev.new(width=11,height=6,noRStudioGD = TRUE)
 ggplot(by_year_filtered, aes(year,  n, color = type)) +
   geom_line() +
   facet_wrap(~ tag_name) +
@@ -88,9 +87,9 @@ by_year_filtered_extend <- by_year %>%
 
 
 # Another line plot faceted by the tag name 
-dev.new(width=11,height=6,noRStudioGD = TRUE)
 ggplot(by_year_filtered_extend, aes(year,  n, color = type)) +
   geom_line() +
   facet_wrap(~ tag_name) +
   ggtitle('Popularity of Stack Overflow Tags Over Time') +
   labs(x='Year', y='Number of Posts with tag')
+ggsave('stackoverflow.png', width = 3000, height = 2000, units = 'px')
