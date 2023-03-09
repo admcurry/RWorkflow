@@ -34,6 +34,7 @@ by_tag_subset <- by_tag_year_fraction %>%
 #Plotting Graph
 ggplot(by_tag_subset, aes(year, fraction, color=tag)) +
   geom_line(size = 0.8) +
+  theme_classic() +
   labs(title = 'Popularity of Programming Languages',
        x = 'Year',
        y = 'Proportion') +
@@ -46,6 +47,7 @@ year2018 <- by_tag_subset %>%
   select(tag, fraction) %>%
   arrange(fraction)
 
+#Plotting 2018 Graph
 ggplot(year2018, aes(fct_reorder(tag, fraction, .desc = TRUE), fraction, fill = 'Navy')) +
   geom_col() +
   theme_classic() +
