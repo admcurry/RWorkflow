@@ -29,3 +29,5 @@ b <- ggplot(cars, aes(mpg, hp)) +
 ggarrange(a, b,
           labels = c("i", "ii"),
           ncol = 2, nrow = 1)
+
+ggsave('cars.png', width = 3000, height = 2000, units = 'px')
